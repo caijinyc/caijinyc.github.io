@@ -6,6 +6,7 @@
 @import "_all/page.scss";
 @import "_all/tag.scss";
 @import "_all/posts.scss";
+@import "_all/about.scss";
 
 body {
   font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB",STHeiti,"Microsoft YaHei","Microsoft JhengHei","Source Han Sans SC","Noto Sans CJK SC","Source Han Sans CN","Noto Sans SC","Source Han Sans TC","Noto Sans CJK TC","WenQuanYi Micro Hei",SimSun,sans-serif;
@@ -16,14 +17,14 @@ body {
 main,
 footer {
   position: relative;
-  margin: 0 auto;
+  margin: 16px auto;
   max-width: 760px;
 }
 
 @media screen and (max-width: 600px) {
   main {
     padding: 15px;
-    margin-top: 80px;
+    margin-top: 30px;
   }
 }
 
