@@ -84,3 +84,5 @@ deploy:
 
 google_search: true
 
+sitemap:
+  path: sitemap.xml
