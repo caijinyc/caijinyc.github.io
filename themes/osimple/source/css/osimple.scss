@@ -17,14 +17,20 @@ body {
 main,
 footer {
   position: relative;
-  margin: 16px auto;
+  margin: 0 auto;
   max-width: 760px;
+  padding: 0 16px;
 }
 
 @media screen and (max-width: 600px) {
   main {
     padding: 15px;
-    margin-top: 30px;
+    margin-top: 80px;
+  }
+
+  // 移动端适配
+  .recent-post-item:first-child {
+    margin-top: 0;
   }
 }
 
