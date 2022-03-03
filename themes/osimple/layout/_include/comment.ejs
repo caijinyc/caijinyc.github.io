@@ -3,7 +3,9 @@
       var disqus_shortname = '<%= theme.disqus %>';
       var disqus_config = function () {
           <!--this.page.url = '<%= config.url + page.path %>';-->
+          // disqus open comment page url
           this.page.url = '<%= page.permalink %>';
+          // disqus use this as comment id
           this.page.identifier = '<%= page.path %>';
       };
 

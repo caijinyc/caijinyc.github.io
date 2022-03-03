@@ -25,7 +25,8 @@
       <% }%>
       <% if (page.date) { %>
         <time datetime="<%= page.date.toJSON() %>">
-            Posted by <%= config.author %> on <%= date(page.date) %>
+<!--            Posted by <%= config.author %> on -->
+          <%= date(page.date) %>
         </time>
       <% } %>
       <% if (page.tags && page.tags.length > 0) { %>

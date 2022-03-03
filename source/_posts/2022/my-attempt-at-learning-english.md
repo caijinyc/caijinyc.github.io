@@ -1,5 +1,5 @@
 ---
-title: 关于我在英语学习上的一些尝试
+title: 英语学习的 N 次失败经历
 subtitle: "My attempt at learning English"
 date: 2022-02-27
 tags:
