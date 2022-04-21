@@ -3,7 +3,7 @@ title: Web 性能指标定义和获取方法
 subtitle: "Web performance optimization metrics and how to get them"
 date: 2022-04-20
 tags:
-- 性能
+- 性能优化
 ---
 
 如果要做前端页面的性能优化，那么肯定需要一些衡量指标来衡量优化收益。目前业界常用的衡量指标有：FP、FCP、LCP、TTFB 等等，本文简单解释一下这些指标以及如何获取方法。
@@ -66,7 +66,7 @@ LCP 是测量感知加载速度的一个以用户为中心的重要指标，因�
 
 ![](/asset/img/2022/performance-optimizing-metrics/img_2.png)
 
-如果你对细节感兴趣，想知道 Chrome 团队是如何定义 LCP 的，可以查看这里：[何时报告最大内容绘制？](https://web.dev/lcp/#yuan-2)
+如果你对细节感兴趣，想知道 W3C 团队是如何定义 LCP 的，可以查看这里：[何时报告最大内容绘制？](https://web.dev/lcp/#yuan-2)
 
 W3C 团队同样也给出了推荐的 LCP 时间：
 
