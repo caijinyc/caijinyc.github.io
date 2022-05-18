@@ -102,3 +102,6 @@ feed:
 #  icon: icon.png
 #  autodiscovery: true
 #  template:
+
+sass:
+  outputStyle: expanded # "expanded" or "compressed"
