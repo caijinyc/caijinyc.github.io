@@ -1,5 +1,5 @@
 ---
-title: Monorepo 实践记录
+title: 实践 Monorepo 模式两年多的一些总结
 subtitle: "Monorepo experience record"
 date: 2022-05-18
 tags:
