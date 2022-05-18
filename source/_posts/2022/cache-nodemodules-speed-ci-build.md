@@ -1,12 +1,12 @@
 ---
-title: 依赖缓存加速 CI 构建
+title: 通过依赖缓存的方式实现秒级依赖安装加速 CI 构建
 subtitle: "Cache node_modules speed CI build"
 date: 2022-04-11
 tags:
-- 构建
+- CI/CD
 ---
 
-> 通过手动缓存 node_modules 目录来加速 CI 构建，真滴快（非 yarn offline 或 pnpm）！
+> 通过手动缓存 node_modules 目录来加速 CI 构建，真滴快（秒级 < 10s）！
 
 <!--more-->
 
