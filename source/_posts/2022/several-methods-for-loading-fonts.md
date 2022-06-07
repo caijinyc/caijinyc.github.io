@@ -30,18 +30,19 @@ tags:
 虽然全量加载字体的操作对首屏的性能影响比较大，但是部分场景还是很常用的，例如图文编辑器(稿定设计、Canva)。所以这部分也简单记录一下。
 
 如果是首屏的字体加载，直接写在 CSS 里面就可以了，例如这样：
+
 ``` css
-      @font-face {
-        font-family: FONT_FAMILY_NAME;
-        font-display: swap;
-        src: url("字体 CDN 地址");
-      }
-      
-      body {
-        font-family: FONT_FAMILY_NAME;
-      }
-      
+@font-face {
+  font-family: FONT_FAMILY_NAME;
+  font-display: swap;
+  src: url("字体 CDN 地址");
+}
+
+body {
+  font-family: FONT_FAMILY_NAME;
+}
 ```
+
 如果非首屏，且是通过用户交互触发的字体加载，例如：
 
 <img src="/asset/img/2022/several-methods-for-loading-fonts/img_1.png" width="500px" alt="img_1">
@@ -49,15 +50,15 @@ tags:
 这种场景则可以使用 [Font Face Observer](https://github.com/bramstein/fontfaceobserver) 来帮助我们监听字体加载的状态态，让我们可以方便地获取字体加载成功、失败等状态，来做其他处理。
 
 ``` TS
-      var font = new FontFaceObserver('My Family', {
-        weight: 400
-      });
-      
-      font.load().then(function () {
-        console.log('Font is available');
-      }, function () {
-        console.log('Font is not available');
-      });
+var font = new FontFaceObserver('My Family', {
+  weight: 400
+});
+
+font.load().then(function () {
+  console.log('Font is available');
+}, function () {
+  console.log('Font is not available');
+});
 ```
 
 ## 部分加载字体
@@ -116,7 +117,7 @@ tags:
 
 当我们页面动态输入字体时，`unicode-range` 会判断字体是否命中，当命中切片字体范围时，就会加载这部分字体文件。
 
-**那么怎么把一整个大的字体文件拆成若干个小的字体文件呢？？**
+**那么怎么把一整个大的字体文件拆成若干个小的字体文件呢？**
 
 我们可以通过 [fonteditor-core](https://github.com/kekee000/fonteditor-core) 这个库来处理字体文件，将其根据 `unicode-range` 切片，具体使用方案请参考文档，感兴趣的朋友可以深入研究。
 
@@ -127,6 +128,8 @@ tags:
 ## 总结
 
 本文简述了字体加载的几种方案以及部分原理，笔者也在持续学习中，如有错误，欢迎指正。
+
+如果已经有动态加载的服务了，推荐直接使用动态加载字体的服务，体验应该是最好的。如果实在没加载的服务 + 固定文本，那也可以选择用 Fontmin 字体拆分。全量加载除了在特殊场景下，能不用就别用了。
 
 ## 参考资料
 
