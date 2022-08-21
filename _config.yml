@@ -6,7 +6,7 @@
 title: Jin's Blog
 subtitle: 蔡锦的博客
 #description: FOCUS & KEEP LEARNING
-description: Out of your comfort zone & Never too late to change your life
+description: Out of your comfort zone & 长期主义
 keywords:
 author: Jin
 language: en
@@ -42,7 +42,7 @@ future: true
 highlight:
   enable: true
   line_number: false
-  auto_detect: false
+  auto_detect: true
   tab_replace:
 
 # Home page setting
