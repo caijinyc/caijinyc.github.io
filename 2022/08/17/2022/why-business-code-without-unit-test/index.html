@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>业务代码为什么基本没有单元测试 - 蔡锦的博客 | Jin&#39;s Blog</title>
+<!--<title>业务代码为什么基本没有单元测试 - Jin&#39;s Blog</title>-->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/css/osimple.css">
+
+
+<link rel="stylesheet" href="/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/favicon.ico"> 
+  
+<link rel="stylesheet" href="/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Jin's Blog" type="application/atom+xml">
+</head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/">Jin&#39;s Blog</a>
+    <div class="right">
+      
+        <a href="/">HOME</a>
+      
+        <a href="/weekly/">WEEKLY</a>
+      
+        <a href="/archives/">ARCHIVE</a>
+      
+        <a href="/about/">ABOUT</a>
+      
+        <a href="/atom.xml">RSS</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        业务代码为什么基本没有单元测试
+      </h1>
+      
+      <h2 class="page-subtitle">
+        Why business code basically missing unit test?
+      </h2>
+      
+      
+        <time datetime="2022-08-17T00:00:00.000Z">
+<!--            Posted by Jin on -->
+          August 17th 2022
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/tags/测试/">测试</a>
+            </li>
+          
+            <li class="tag-list-item">
+              <a href="/tags/思考/">思考</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>根据我了解到的信息，公司内的大部分的业务代码是完全没有单测的（我在的业务也没有 =。=）。测试代码可以保障我们代码的稳定性、可维护性、复用性，除了要花点时间写 🐶。那么为什么在业务代码中通常没有测试用例呢？本文简单整理了一下我的浅显理解。</p>
+<span id="more"></span>
+
+
+<h2 id="为什么基本没有单测？"><a href="#为什么基本没有单测？" class="headerlink" title="为什么基本没有单测？"></a>为什么基本没有单测？</h2><h3 id="业务快速迭代，需求变更频繁"><a href="#业务快速迭代，需求变更频繁" class="headerlink" title="业务快速迭代，需求变更频繁"></a>业务快速迭代，需求变更频繁</h3><p>业务快速迭代是最主要的原因，代码的快速变更让单测用例快速失效。还有就是需求频繁变更的问题。产品今天一个想法，研发开发的过程中，产品又发现逻辑不自洽、交互变更、需求变更，大家应该都遇到过类似的问题，这导致刚刚写完的测试用例又需要变更。</p>
+<p>同时业务迭代小步快跑的策略能把人压得喘不上气，无数的需求 + 研发排期的压缩。如果需要在紧迫的排期中（很多业务常年倒排需求，产品定个上线时间点，在这之前必须上线）再挤出时间，说实话真的太难了，这就让写单测这件事情被自动牺牲掉了。</p>
+<h3 id="有测试同学保障进行黑盒测试"><a href="#有测试同学保障进行黑盒测试" class="headerlink" title="有测试同学保障进行黑盒测试"></a>有测试同学保障进行黑盒测试</h3><p>说实话，我感觉这一点是大家能够心安理得不写测试用例的原因。因为 ”开发 → 提测 → 测试环境回归 → 线上环境回归 → 上线“ 的流程，测试起码帮你跑了两遍业务流程，测试说没问题，那么一般来说肯定就不会有问题。</p>
+<p>但是对于核心、复杂的业务逻辑，测试同学大概率也是无法帮你回归所有 case 点的，这需要注意。</p>
+<h3 id="成本高，研发不愿意写"><a href="#成本高，研发不愿意写" class="headerlink" title="成本高，研发不愿意写"></a>成本高，研发不愿意写</h3><p>这个感觉也是时间原因，增加单测就代表了需要维护测试代码，然而又没有那么多时间写…</p>
+<p>还有一点就是不是所有研发了解单测，就像我这个菜🐶，进了公司到现在，从来没见过业务代码有人写测试（业务上的工具库大概率也是不写）。</p>
+<p>所以怎么样让研发理解单测的意义，然后接受单测，也是个问题。</p>
+<p>或者说大家基本都不是很关心代码质量，能 CV（复制粘贴）解决的需求，就 CV 解决… 那还提什么单测了。</p>
+<h3 id="收益无法描述"><a href="#收益无法描述" class="headerlink" title="收益无法描述"></a>收益无法描述</h3><p>测试覆盖率的还不够明显吗？我的代码可维护性提升了呀？但是，业务方会关心这些东西吗？说真的，他们大概率不会 care 这些东西，他们只会关心你的需求明天能不能上线！</p>
+<p>我个人理解如果真的重视单测，那么应该是从上至下的推进这个东西，首先业务老板和研发老板对齐认知，我们研发大头兵才有底气去做这件事~</p>
+<h2 id="其他方法拯救代码"><a href="#其他方法拯救代码" class="headerlink" title="其他方法拯救代码"></a><strong>其他方法拯救代码</strong></h2><blockquote>
+<p>业务代码说全部覆盖测试实话我感觉不太现实 🐶，除非你能解决前面说的几点问题。</p>
+</blockquote>
+<p>现在看下来，研发写单测是一件比较难以推进的事情了，但是我们还有些别的办法曲线救国。</p>
+<h3 id="工具库一定要写测试"><a href="#工具库一定要写测试" class="headerlink" title="工具库一定要写测试"></a>工具库一定要写测试</h3><p>工具库代码最好使用 TDD 的方式进行开发，或者其他测试方案也可以，重要的是保障测试覆盖。因为工具库写测试不是为产品负责、不是为老板负责，而是为自己负责。</p>
+<p>测试代码可以让你后面很安心的维护代码，迭代需求。且作为工具库，别人在问你这个库靠不靠谱的时候，你就可以大声的喊出：“我这个测试覆盖率 100% 的，稳的很！”（笑 🤣</p>
+<p>对于工具库来说，测试覆盖率真的很重要。如果没有测试代码，你的后续代码变更肯定是举步维艰，自己也会很痛苦，就不要给自己埋坑了。</p>
+<h3 id="对核心的、稳定的、重要的业务逻辑代码写单测"><a href="#对核心的、稳定的、重要的业务逻辑代码写单测" class="headerlink" title="对核心的、稳定的、重要的业务逻辑代码写单测"></a>对核心的、稳定的、重要的业务逻辑代码写单测</h3><p>当我们的业务足够稳定，那么就可以推进对核心的、稳定的业务逻辑代码进行测试用例的编写。</p>
+<p><strong>核心的、稳定的</strong>，这两点很重要。只要代码够重要，你就必须要写测试。例如一个 BUG 可能导致 N 个 W 的损失的核心业务，你写还是不写？如果不写，那么还敢不敢上线呢？</p>
+<p>如果业务流程简单，那么测试同学还可以帮你兜底。但核心业务一般都堆了无数的逻辑上去，测试一般是无法回归到全量 case 的（如果你们的测试足够牛逼，持续整理全量 case，当我没说）。</p>
+<p>这其实和前面讲的工具库一个道理，没有测试用例，就不敢动。</p>
+<h3 id="使用测试覆盖率工具保障代码"><a href="#使用测试覆盖率工具保障代码" class="headerlink" title="使用测试覆盖率工具保障代码"></a>使用测试覆盖率工具保障代码</h3><p>我们可以使用前端测试代码覆盖率工具来解决没有测试用例的问题，<strong>当然他不会像研发自己写的测试那样靠谱。但是起码保障了一定的稳定行。</strong></p>
+<p>前端测试覆盖率工具是指通过代码插装的方式，在测试环境注入运行上报代码。当代码被执行到后，就会进行覆盖率上报。当我们的代码在测试环境被运行到后，这部分代码就为测试通过。未运行到的代码为未覆盖测试。下图（马赛克处理，将就看看）中的红色部分就是测试未覆盖到的代码：</p>
+<img src="/asset/img/2022/why-business-code-without-unit-test/1.jpeg" alt="img">
+
+<p>测试覆盖率工具可以帮助我们部分解决代码无测试的尴尬，虽然他也有一定的局限性，那就是运行到所有代码不代表能覆盖所有 case，这就和代码测试覆盖率 100% 一样（测试覆盖率 100% 不代表覆盖 100% 的场景）。</p>
+<p>但是，起码它能保障我们的代码都运行到了不是吗 🤣，起码你能够知道测试告诉你我已经测完了的时候，代码到底有没有被测试过~</p>
+<h3 id="测试环境回归"><a href="#测试环境回归" class="headerlink" title="测试环境回归"></a>测试环境回归</h3><p>在测试环境回归代码，不要直接上线，这个就不多说了。</p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/2022/08/21/2022/clean-code/">
+        <span>PREVIOUS</span>
+        <p>《代码整洁之道》</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/2022/07/01/2022/work-3th-anniversary/">
+        <span>NEXT</span>
+        <p>工作 3 周年记录</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+<!--      <script src="https://utteranc.es/client.js"-->
+<!--              repo="caijinyc/caijinyc.github.io"-->
+<!--              issue-term="pathname"-->
+<!--              theme="github-light"-->
+<!--              crossorigin="anonymous"-->
+<!--              async>-->
+<!--      </script>-->
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            5
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%BB%E7%BB%93/">
+          总结
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/CI-CD/">
+          CI/CD
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E9%98%85%E8%AF%BB/">
+          阅读
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/monorepo/">
+          monorepo
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E8%8B%B1%E8%AF%AD/">
+          英语
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+          性能优化
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Font/">
+          Font
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%B5%8B%E8%AF%95/">
+          测试
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%9D%E8%80%83/">
+          思考
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E5%B7%A5%E4%BD%9C/">
+          工作
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Form/">
+          Form
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2022 Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p>
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          <!--this.page.url = 'https://caijin.tech2022/08/17/2022/why-business-code-without-unit-test/';-->
+          // disqus open comment page url
+          this.page.url = 'https://caijin.tech/2022/08/17/2022/why-business-code-without-unit-test/';
+          // disqus use this as comment id
+          this.page.identifier = '2022/08/17/2022/why-business-code-without-unit-test/';
+      };
+
+      <!--console.log('11', 'https://caijin.tech2022/08/17/2022/why-business-code-without-unit-test/', 'title,subtitle,date,_content,source,raw,slug,published,updated,comments,layout,photos,link,_id,content,site,excerpt,more,path,permalink,full_source,asset_dir,tags,categories,prev,next,__post,lang,canonical_path', 'https://caijin.tech/2022/08/17/2022/why-business-code-without-unit-test/')-->
+
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/js/highlight.js"></script>
+
+</body>
+</html>
+
+

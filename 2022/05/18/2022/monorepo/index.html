@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>实践 Monorepo 模式两年多的一些总结 - 蔡锦的博客 | Jin&#39;s Blog</title>
+<!--<title>实践 Monorepo 模式两年多的一些总结 - Jin&#39;s Blog</title>-->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/css/osimple.css">
+
+
+<link rel="stylesheet" href="/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/favicon.ico"> 
+  
+<link rel="stylesheet" href="/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Jin's Blog" type="application/atom+xml">
+</head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/">Jin&#39;s Blog</a>
+    <div class="right">
+      
+        <a href="/">HOME</a>
+      
+        <a href="/weekly/">WEEKLY</a>
+      
+        <a href="/archives/">ARCHIVE</a>
+      
+        <a href="/about/">ABOUT</a>
+      
+        <a href="/atom.xml">RSS</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        实践 Monorepo 模式两年多的一些总结
+      </h1>
+      
+      <h2 class="page-subtitle">
+        Monorepo experience record
+      </h2>
+      
+      
+        <time datetime="2022-05-18T00:00:00.000Z">
+<!--            Posted by Jin on -->
+          May 18th 2022
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/tags/monorepo/">monorepo</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <blockquote>
+<p>团队从 19 年末开始从 multirepo 的模式迁移到 monorepo，经历了 2 年多的历程，也有许多感悟。本文主要总结一下自己对 monorepo 这种项目管理模式的粗浅理解。</p>
+</blockquote>
+<span id="more"></span>
+
+<p>本文不会对 monorepo 的概念进行介绍，如果你还不了解 monorepo 的概念，可以参考这篇文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/77577415">Monorepo 是什么，为什么大家都在用？
+</a> 或者其他对于 monorepo 的介绍文章，网上有很多，一搜一大把。</p>
+<h2 id="为什么使用-monorepo"><a href="#为什么使用-monorepo" class="headerlink" title="为什么使用 monorepo"></a>为什么使用 monorepo</h2><p>当初团队从 multirepo 迁移到 monorepo，主要还是因为方便共享和调试工具库，但是除了这点，monorepo 还有其他优势，比如：</p>
+<h3 id="便捷共享和调试代码"><a href="#便捷共享和调试代码" class="headerlink" title="便捷共享和调试代码"></a>便捷共享和调试代码</h3><p>团队最初使用 multirepo 最主要的问题是多仓库共享代码、调试非常不方便，也就是开发工具库/组件库时调试很麻烦，每次都需要使用 yarn link 的模式来开发，然后开发完成后再进行发版才能供其他项目使用，这就导致了多仓库共享代码成本非常高。</p>
+<p>切换成 monorepo 的模式后，对基础库的开发就非常省事，我们可以直接在项目中引用工具库进行开发调试，不需要再使用 yarn link。</p>
+<h3 id="重复的基础建设"><a href="#重复的基础建设" class="headerlink" title="重复的基础建设"></a>重复的基础建设</h3><p>除了共享代码繁琐，每个工具库还需要配置自己的基础设施、CI/CD 流程、开发环境，同时每个项目都需要专人来维护，这样就很容易导致项目之间的不一致性，而后提升多项目维护成本。</p>
+<p>试想一下，如果你需要开发多个项目，而每个项目的开发模式都是不一致的，这种体验是非常糟糕的，也是非常耗费人力成本的。</p>
+<p>但是当我们使用 monorepo 时，我们就可以在使用一套基础建设、开发规范等来降低项目维护的成本。且只需要抽出单独的 1-2 个人力去专门维护基础建设，其他项目完全不需要再关心。</p>
+<h3 id="简化依赖管理"><a href="#简化依赖管理" class="headerlink" title="简化依赖管理"></a>简化依赖管理</h3><p>同时因为不再使用的发包模式来管理公共代码，所以对 monorepo 内的公共依赖都是使用的最新版本，这样就很容易追踪到公共代码的变更会对其他项目的影响，当然这个时候就更需要注重公共代码的自动化测试，因为公共代码只要合并到 master 后就会立即影响所有线上项目。</p>
+<h3 id="快速协助其他项目开发"><a href="#快速协助其他项目开发" class="headerlink" title="快速协助其他项目开发"></a>快速协助其他项目开发</h3><p>因为使用了完全相同的基础建设、工作流、开发环境，所以在团队之间相互协助的时候，不需要在配置开发环境、如何部署项目等等流程上重复浪费时间，只需要关心业务的开发即可。</p>
+<h2 id="实践过程中遇到问题"><a href="#实践过程中遇到问题" class="headerlink" title="实践过程中遇到问题"></a>实践过程中遇到问题</h2><p>使用 monorepo 的模式的确解决了多仓库联调、基础建设复用等问题，但同时也带来了一些特有的问题。</p>
+<h3 id="幽灵依赖（phantom-dependency）"><a href="#幽灵依赖（phantom-dependency）" class="headerlink" title="幽灵依赖（phantom dependency）"></a>幽灵依赖（phantom dependency）</h3><p>幽灵依赖指的是一个库使用了不属于其 <code>dependencies</code> 里的 package，我相信大部分使用 monorepo 的朋友应该都遇到过或者了解过。</p>
+<h4 id="使用未声明的依赖的版本"><a href="#使用未声明的依赖的版本" class="headerlink" title="使用未声明的依赖的版本"></a>使用未声明的依赖的版本</h4><p>假设现在 <strong>APP1</strong> 依赖了 <code>A@1.0.0</code>。突然有一天，<strong>APP2</strong> 也想用 <code>A@1.0.0</code> 这个依赖，这时，在 <strong>APP2</strong> 中使用 <code>import X from &#39;A&#39;</code> 直接跑通了，看起来没什么问题，但其实 <strong>APP2</strong> 的  <code>dependencies</code> 中并没有添加 <code>A</code> 依赖，但因为有 yarn 的依赖提升，将 <code>A@1.0.0</code> 直接提升到了最外层，让 <strong>APP2</strong> 也能使用依赖项 <code>A</code>。</p>
+<p>后来的某天 <strong>APP1</strong> 不需要依赖 <code>A</code> 了，这个时候它就把依赖项从 <code>dependencies</code> 中移除了，但是这时候，<strong>APP2</strong> 直接就挂了。</p>
+<p>这种 case 还算是比较好的了，毕竟项目在开发或者部署的时候直接就挂了。</p>
+<p>最惨的是，<strong>APP1</strong> 需要升级 <code>A@1.0.0</code> 到 <code>A@2.0.0</code> 升级自己的项目回归过，没问题，代码合并到 master 上线。</p>
+<p><strong>APP2</strong> 这时候就倒霉了，<code>A@1.0.0</code> 到 <code>A@2.0.0</code> 完全不兼容，而 <strong>APP2</strong> 完全没有做相关代码的升级，这就导致线上的 <strong>APP2</strong> 项目直接就挂了。</p>
+<h4 id="peerDependencies-错误"><a href="#peerDependencies-错误" class="headerlink" title="peerDependencies 错误"></a>peerDependencies 错误</h4><p>看一下这种场景：</p>
+<ol>
+<li><strong>APP1</strong> 依赖 <code>A@1.0.0</code></li>
+<li><strong>APP2</strong> 依赖 <code>B@2.0.0</code></li>
+<li><code>B@2.0.0</code> 将 <code>A@2.0.0</code> 作为 <code>peerDependencies</code>，故 <strong>APP2</strong> 也应该安装 <code>A@2.0.0</code></li>
+</ol>
+<p>但如果 <strong>APP2</strong> 没有安装 <code>A@2.0.0</code>，那么 <code>B@2.0.0</code> 则会使用被变量提升的 <code>A@1.0.0</code> 版本。</p>
+<p>如果你运气不错， <code>A@1.0.0</code> 和 <code>A@2.0.0</code> 完全不兼容，那么项目运行就直接挂了。但如果两个版本只是有部分 API 变更，导致你开发的时候并没有遇到问题，但是一上线，直接就挂了。</p>
+<p>或者 <strong>APP1</strong> 升级了依赖到 <code>A@3.0.0</code> 版本，也会导致 <strong>APP2</strong> 直接挂掉，因为 <strong>APP2</strong> 会使用 <strong>APP1</strong> 升级后的依赖。</p>
+<h4 id="如何解决"><a href="#如何解决" class="headerlink" title="如何解决"></a>如何解决</h4><p>幽灵依赖是一个比较常见的问题，容易导致线上问题是因为比较隐蔽，很难发现，出现问题也很难定位，所以我们需要从根源上杜绝幽灵依赖的问题。</p>
+<p>导致问题发生的罪魁祸首就是 <strong>”依赖提升“</strong>，所以我们只需要想办法解决掉它就可以了。</p>
+<p>我们可以将包管理器换成 pnpm ，直接帮我们解决使用依赖但是不写到 <code>dependencies</code> 中的问题。</p>
+<h3 id="编译时间-amp-依赖安装时间变长"><a href="#编译时间-amp-依赖安装时间变长" class="headerlink" title="编译时间&amp;依赖安装时间变长"></a>编译时间&amp;依赖安装时间变长</h3><p>这个问题很好理解，1 个项目和 N + 1 个项目，哪个编译/依赖安装时间更短？显而易见的是单独 1 个项目的编译时间更短。</p>
+<p>但我们可以通过这两种方式降低构建时间（目前团队正在使用的两种方案）：</p>
+<h4 id="按需构建减少需要构建的项目"><a href="#按需构建减少需要构建的项目" class="headerlink" title="按需构建减少需要构建的项目"></a>按需构建减少需要构建的项目</h4><p>编译时间变长主要是因为需要对所有项目进行构建，但是我们其实只需要构建变更的项目和被变更项目影响到的项目，也就是<strong>按需构建</strong>。</p>
+<p>如果项目使用的是 lerna，那么就可以使用 <code>yarn lerna:changed</code> 找出所有需要构建的项目，然后只对这部分项目进行构建。</p>
+<h4 id="手动指定编译项目"><a href="#手动指定编译项目" class="headerlink" title="手动指定编译项目"></a>手动指定编译项目</h4><p>当我们不需要将整个 monorepo 合并到主干分支前，我们可以只对需要构建的项目进行构建。我们可以在 commit body 中指定需要编译的项目，在 CI 脚本中对 commit body 进行识别，从而只进行单个项目的构建。</p>
+<p>当需要合并的主干分支时，再对整个项目进行构建，只有所以项目都完成 CI 构建 &amp; 校验，才能被合并到主干分支。</p>
+<h4 id="依赖安装加速"><a href="#依赖安装加速" class="headerlink" title="依赖安装加速"></a>依赖安装加速</h4><p>同样，项目变多了之后，依赖项就会非常多，导致安装依赖的时间非常长。</p>
+<p>这个解决起来也很容易，如果你使用的是 pnpm 就可以使用 <strong>按需安装</strong>，也就是使用 <code>pnpm install --filter=&quot;XXX&quot;</code> 的方式来进行按需安装，相关文档：<a target="_blank" rel="noopener" href="https://pnpm.io/filtering">Filtering</a>。</p>
+<p>除了按需安装，还可以通过缓存方案来加速，可以看这篇文章：<a href="/2022/04/11/2022/cache-nodemodules-speed-ci-build/">依赖缓存加速 CI 构建</a></p>
+<h3 id="Git-记录混乱"><a href="#Git-记录混乱" class="headerlink" title="Git 记录混乱"></a>Git 记录混乱</h3><p>因为所有人的 commit 在 monorepo 里都在一个线性历史里面，所以很乱。如果团队内没有对 commit 信息进行规范强制校验的话，就会导致项目的 commit 信息直接废弃。想解决这个问题就需要团队定义好 commit 规则，加上 Git Hooks 做好前置校验即可。</p>
+<p>不过即使做了规范化的处理，也顶不住异常多的 commit 记录，所以建议使用可视化工具去看 Git 记录。例如笔者使用的就是 IDE 自带的 Git 工具。</p>
+<h3 id="项目隐私性和安全性的问题"><a href="#项目隐私性和安全性的问题" class="headerlink" title="项目隐私性和安全性的问题"></a>项目隐私性和安全性的问题</h3><p>如果 monorepo 采用单个仓库，那么所有项目的代码对该仓库的所有开发者都是可见的，如果希望对某一个项目施加细粒度的权限控制，采用单仓库是很难实现的。所以如果你的项目需要做保密处理，那么就需要谨慎选择使用 monorepo（当然如果你有别的解决方案也可以告诉我）。</p>
+<h3 id="IDE-卡顿"><a href="#IDE-卡顿" class="headerlink" title="IDE 卡顿"></a>IDE 卡顿</h3><p>实话实说，使用 monorepo 之后，我的电脑只有四个字：“芜湖起飞”，因为我习惯使用 WebStorm / IDEA 来开发项目，众所周知 JetBrains 家的 IDE 是真的吃性能，而我们的代码仓库又实在太大了，约几十个项目，且每个项目的代码量都不小。</p>
+<p>如果你也使用的是 IDEA 可以通过 exclude 不需要关注的项目来减缓这个问题，或者只打开自己需要开发的项目。想要彻底解决这个问题的话，建议直接换成 M1 的 Mac。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果你还没有使用 monorepo 这种项目管理模式，且可以接受这些痛点的话，非常推荐你进行尝试。尤其是你开发工具库的时候，monorepo 的模式实在是太香了。</p>
+<p>如果你想实践的话最简单的方式是直接使用 <code>yarn workspace</code> 去尝试，毕竟 lerna 已经停止维护了。可以参考 <a target="_blank" rel="noopener" href="https://github.com/vuejs/core">Vue 3</a> 的实践方式，照抄一下~</p>
+<p>以上总结都是个人的一些浅显理解，希望读者朋友能从笔者的总结有所收获。如果你有不同的理解或者建议欢迎在评论区留言指出，非常感谢。</p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/2022/06/08/2022/several-methods-for-loading-fonts/">
+        <span>PREVIOUS</span>
+        <p>字体加载的几种方案</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/2022/04/20/2022/performance-optimization-metrics/">
+        <span>NEXT</span>
+        <p>Web 性能指标定义和获取方法</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+<!--      <script src="https://utteranc.es/client.js"-->
+<!--              repo="caijinyc/caijinyc.github.io"-->
+<!--              issue-term="pathname"-->
+<!--              theme="github-light"-->
+<!--              crossorigin="anonymous"-->
+<!--              async>-->
+<!--      </script>-->
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            5
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%BB%E7%BB%93/">
+          总结
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/CI-CD/">
+          CI/CD
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E9%98%85%E8%AF%BB/">
+          阅读
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/monorepo/">
+          monorepo
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E8%8B%B1%E8%AF%AD/">
+          英语
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+          性能优化
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Font/">
+          Font
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%B5%8B%E8%AF%95/">
+          测试
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%9D%E8%80%83/">
+          思考
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E5%B7%A5%E4%BD%9C/">
+          工作
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Form/">
+          Form
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2022 Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p>
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          <!--this.page.url = 'https://caijin.tech2022/05/18/2022/monorepo/';-->
+          // disqus open comment page url
+          this.page.url = 'https://caijin.tech/2022/05/18/2022/monorepo/';
+          // disqus use this as comment id
+          this.page.identifier = '2022/05/18/2022/monorepo/';
+      };
+
+      <!--console.log('11', 'https://caijin.tech2022/05/18/2022/monorepo/', 'title,subtitle,date,_content,source,raw,slug,published,updated,comments,layout,photos,link,_id,content,site,excerpt,more,path,permalink,full_source,asset_dir,tags,categories,prev,next,__post,lang,canonical_path', 'https://caijin.tech/2022/05/18/2022/monorepo/')-->
+
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/js/highlight.js"></script>
+
+</body>
+</html>
+
+

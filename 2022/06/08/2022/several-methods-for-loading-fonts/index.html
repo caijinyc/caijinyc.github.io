@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>字体加载的几种方案 - 蔡锦的博客 | Jin&#39;s Blog</title>
+<!--<title>字体加载的几种方案 - Jin&#39;s Blog</title>-->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/css/osimple.css">
+
+
+<link rel="stylesheet" href="/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/favicon.ico"> 
+  
+<link rel="stylesheet" href="/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Jin's Blog" type="application/atom+xml">
+</head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/">Jin&#39;s Blog</a>
+    <div class="right">
+      
+        <a href="/">HOME</a>
+      
+        <a href="/weekly/">WEEKLY</a>
+      
+        <a href="/archives/">ARCHIVE</a>
+      
+        <a href="/about/">ABOUT</a>
+      
+        <a href="/atom.xml">RSS</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        字体加载的几种方案
+      </h1>
+      
+      <h2 class="page-subtitle">
+        Several methods for loading fonts
+      </h2>
+      
+      
+        <time datetime="2022-06-08T00:00:00.000Z">
+<!--            Posted by Jin on -->
+          June 8th 2022
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/tags/Font/">Font</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <blockquote>
+<p>众所周知，中文字体文件都是比较大的，且还有不同的字重，如果需要加载所有字重的字体文件，那体积就更加夸张，本文简述字体加载的几种方案，以及如何选择合适的方案。</p>
+</blockquote>
+<span id="more"></span>
+
+<h4 id="碎碎念"><a href="#碎碎念" class="headerlink" title="碎碎念"></a>碎碎念</h4><p>这篇文章真的拖跟的有点久，其实一个多月前就想写了，但是自己拖延症的毛病实在是 …（已经不想吐槽了，我真的好懒），好在最后还是写完了。</p>
+<p>我知道类似的这种文章网上一搜一大把，但我还是倾向于把自己学习到的内容通过文章的方式记录下来，虽然自己好奇的东西有很多，但是如果只是简单了解的话，往往又觉得不够透彻。只有把自己的学到的记录下来，才能够帮助自己更深入的理解。</p>
+<blockquote>
+<p>好奇 -&gt; 了解 -&gt; 学习 -&gt; 记录 -&gt; 分享-&gt; 成长</p>
+</blockquote>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>我们可以看到，一个包含所有字重的思源黑体文件大小有 30MB，这个体积是非常夸张的。</p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/img.png" width="300px" alt="img">
+
+<p>如果我们需要对所有字体文件做加载，那么加载时间就会过长，很影响首屏时间。所以我们可以根据业务场景来使用不同的字体加载方案。</p>
+<h2 id="全量加载字体"><a href="#全量加载字体" class="headerlink" title="全量加载字体"></a>全量加载字体</h2><p>虽然全量加载字体的操作对首屏的性能影响比较大，但是部分场景还是很常用的，例如图文编辑器(稿定设计、Canva)。所以这部分也简单记录一下。</p>
+<p>如果是首屏的字体加载，直接写在 CSS 里面就可以了，例如这样：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: FONT_FAMILY_NAME;</span><br><span class="line">  <span class="attribute">font-display</span>: swap;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&quot;字体 CDN 地址&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: FONT_FAMILY_NAME;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果非首屏，且是通过用户交互触发的字体加载，例如：</p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/img_1.png" width="500px" alt="img_1">
+
+<p>这种场景则可以使用 <a target="_blank" rel="noopener" href="https://github.com/bramstein/fontfaceobserver">Font Face Observer</a> 来帮助我们监听字体加载的状态态，让我们可以方便地获取字体加载成功、失败等状态，来做其他处理。</p>
+<figure class="highlight ts"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> font = <span class="keyword">new</span> <span class="title class_">FontFaceObserver</span>(<span class="string">&#x27;My Family&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">weight</span>: <span class="number">400</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">font.<span class="title function_">load</span>().<span class="title function_">then</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Font is available&#x27;</span>);</span><br><span class="line">&#125;, <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Font is not available&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="部分加载字体"><a href="#部分加载字体" class="headerlink" title="部分加载字体"></a>部分加载字体</h2><p>全量加载的体验不是很好，所以我们需要提供一个方案来加载部分字体，下面列举部分加载的几种方法。</p>
+<h3 id="使用图片"><a href="#使用图片" class="headerlink" title="使用图片"></a>使用图片</h3><p>最简单最暴力的方案就是直接把设计师给的图片丢到页面上去，又快又方便。当然缺点也很明显：</p>
+<ol>
+<li>不能再对文案进行修改</li>
+<li>不能对文本设置样式</li>
+<li>如果使用的是矢量图就会导致图片放大后失真(例如 1x 图在高分屏上就模糊了)，当然你可以使用 svg 解决这个问题，如果用 figma 出图的话可以直接选择导出 svg 图片</li>
+</ol>
+<p>如果这的时间紧迫，用这个方案也不是不可以，例如要做个简单的官网项目，时间又非常紧迫，直接在 Figma / Sketch 上导出 svg 图片就可以开心的糊页面了，又快又简单。</p>
+<h3 id="字体裁切"><a href="#字体裁切" class="headerlink" title="字体裁切"></a>字体裁切</h3><p>使用 <a target="_blank" rel="noopener" href="http://ecomfe.github.io/fontmin/#usage">Fontmin</a> 对使用到的文案进行选取，这样打包出来的字体文件就只会包含你选中的文案。</p>
+<p>当你的文案相对固定时，就可以使用这个方案。例如之前我做的需求，设计只想用某个字体中的数字，这时我就可以直接把字体中的数字裁切出来，只需要加载几 kb 的字体。</p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/img_2.png" width="600px">
+
+<img src="/asset/img/2022/several-methods-for-loading-fonts/img_3.png" width="400px">
+
+
+<h3 id="动态加载字体-⭐️"><a href="#动态加载字体-⭐️" class="headerlink" title="动态加载字体 ⭐️"></a>动态加载字体 ⭐️</h3><p>终极方案，按需加载字体，根据页面中的使用到的字体动态的加载字体文件。优点是<strong>不再限制固定文案，纵使页面的文案不断变更，也不影响字体展示</strong>。</p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/font-load_1654579848120_0.gif" width="400px" >
+
+<p>我们可以使用 <a target="_blank" rel="noopener" href="https://fonts.google.com/noto/specimen/Noto+Serif+SC?subset=chinese-simplified">Google Fonts</a> 提供的字体动态加载。 </p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/img_5.png" width="400px" >
+
+<p>如图所示，当我们需要使用动态加载服务时，直接复制示例代码到项目中就可以了，真的非常简单。效果如下：</p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/google-fonts.gif" width="700px" >
+
+<p>简单是简单，但是因为墙的问题，所以 Google Fonts 提供的字体在国内是无法使用的 😅。</p>
+<p>这时我们可以也可以尝试自己来部署这套加载服务，先看看动态加载的原理吧。</p>
+<h4 id="原理简述"><a href="#原理简述" class="headerlink" title="原理简述"></a>原理简述</h4><p>分析一下动态原理，涉及的主要知识点就是 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range">unicode-range</a>，它的用途可以看一下这篇文章 <a target="_blank" rel="noopener" href="https://www.zhangxinxu.com/wordpress/2016/11/css-unicode-range-character-font-face/">CSS unicode-range特定字符使用font-face自定义字体</a>。</p>
+<p>简单来说 <code>unicode-range</code> 设置了 <code>@font-face</code> 定义的字体中要使用的特定字符范围，如果页面在此范围内未使用任何字符，则不会下载字体；如果使用至少一种，则将下载整个字体。</p>
+<p>让我们打开 Google Fonts 提供的 <a target="_blank" rel="noopener" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100&display=swap">字体使用地址</a> 看看里面都是什么：</p>
+<img src="/asset/img/2022/several-methods-for-loading-fonts/img_6.png" alt="img">
+
+<p>里面定义了无数的 <code>unicode-range</code>，相信你已经能够看出来了：<strong>Google Fonts 将一个字体拆分成了上百个字体文件</strong>（截图只展示了部分，其实还有很多，点开链接就知道了）。</p>
+<p>当我们页面动态输入字体时，<code>unicode-range</code> 会判断字体是否命中，当命中切片字体范围时，就会加载这部分字体文件。</p>
+<p><strong>那么怎么把一整个大的字体文件拆成若干个小的字体文件呢？</strong></p>
+<p>我们可以通过 <a target="_blank" rel="noopener" href="https://github.com/kekee000/fonteditor-core">fonteditor-core</a> 这个库来处理字体文件，将其根据 <code>unicode-range</code> 切片，具体使用方案请参考文档，感兴趣的朋友可以深入研究。</p>
+<p>当然，如果你需要自己部署字体动态加载的服务，还有很多因素需要考虑，例如缓存、切片力度等等等。但是因为我自己也没搞过，只是去了解和分析动态加载的原理，所以我就不在这瞎吹了，有需要实现的朋友可以自己去研究 🤣。</p>
+<p>如果我有时间实现一个的话，我会再写文章详细讲一讲的~</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文简述了字体加载的几种方案以及部分原理，笔者也在持续学习中，如有错误，欢迎指正。</p>
+<p>如果已经有动态加载的服务了，推荐直接使用动态加载字体的服务，体验应该是最好的。如果实在没加载的服务 + 固定文本，那也可以选择用 Fontmin 字体拆分。全量加载除了在特殊场景下，能不用就别用了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.zhangxinxu.com/wordpress/2016/11/css-unicode-range-character-font-face/">CSS unicode-range特定字符使用font-face自定义字体</a></p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/2022/06/09/2022/complex-form-scenario-solution-atomic-form/part-1/">
+        <span>PREVIOUS</span>
+        <p>复杂表单场景解决方案”原子化表单” Part 1 - 痛点</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/2022/05/18/2022/monorepo/">
+        <span>NEXT</span>
+        <p>实践 Monorepo 模式两年多的一些总结</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+<!--      <script src="https://utteranc.es/client.js"-->
+<!--              repo="caijinyc/caijinyc.github.io"-->
+<!--              issue-term="pathname"-->
+<!--              theme="github-light"-->
+<!--              crossorigin="anonymous"-->
+<!--              async>-->
+<!--      </script>-->
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            5
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%BB%E7%BB%93/">
+          总结
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/CI-CD/">
+          CI/CD
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E9%98%85%E8%AF%BB/">
+          阅读
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/monorepo/">
+          monorepo
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E8%8B%B1%E8%AF%AD/">
+          英语
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+          性能优化
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Font/">
+          Font
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%B5%8B%E8%AF%95/">
+          测试
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%80%9D%E8%80%83/">
+          思考
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E5%B7%A5%E4%BD%9C/">
+          工作
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/tags/Form/">
+          Form
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2022 Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p>
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          <!--this.page.url = 'https://caijin.tech2022/06/08/2022/several-methods-for-loading-fonts/';-->
+          // disqus open comment page url
+          this.page.url = 'https://caijin.tech/2022/06/08/2022/several-methods-for-loading-fonts/';
+          // disqus use this as comment id
+          this.page.identifier = '2022/06/08/2022/several-methods-for-loading-fonts/';
+      };
+
+      <!--console.log('11', 'https://caijin.tech2022/06/08/2022/several-methods-for-loading-fonts/', 'title,subtitle,date,_content,source,raw,slug,published,updated,comments,layout,photos,link,_id,content,site,excerpt,more,path,permalink,full_source,asset_dir,tags,categories,prev,next,__post,lang,canonical_path', 'https://caijin.tech/2022/06/08/2022/several-methods-for-loading-fonts/')-->
+
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/js/highlight.js"></script>
+
+</body>
+</html>
+
+
